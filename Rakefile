@@ -4,8 +4,9 @@ require 'motion/project/template/ios'
 
 begin
   require 'bundler'
-  require 'motion-cocoapods'
   require 'teacup'
+  require 'bubble-wrap'
+  require 'motion-cocoapods'
   Bundler.require
 rescue LoadError
 end

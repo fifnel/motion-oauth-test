@@ -6,6 +6,8 @@ class AppDelegate
 
     root = MainController.alloc.init
     navigation = UINavigationController.alloc.initWithRootViewController(root)
+    
+    @window.rootViewController = navigation
 
 #    item_list_controller = ItemListController.alloc.initWithNibName(nil, bundle: nil)
 #    navigation_controller = UINavigationController.alloc.initWithRootViewController(item_list_controller)
@@ -17,7 +19,7 @@ class AppDelegate
  #   tab_controller.viewControllers = [navigation_controller, sandbox_controller]
  #     tab_controller.viewControllers = [auth_web_view_controller]
 
-    @window.rootViewController = navigation
+
     true
   end
 end

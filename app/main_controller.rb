@@ -1,34 +1,50 @@
 class MainController < UIViewController
-
+#  attr_accessor :button
   stylesheet :main_screen
 
-  layout do
-    subview(UIButton, :hi_button)
-  end
+  layout :hai do
+    @result = subview(UILabel, :label, text:'foobar')
+    @button = subview(UIButton.buttonWithType(UIButtonTypeSystem), :hi_button)
+    @button.when(UIControlEventTouchUpInside) do
+      @result.text = 'tapped'
+      App.alert('foobar')
+    end
+  end  
 
-  def initWithNibName(name, bundle: bundle)
-    super
-#    self.tabBarItem = UITabBarItem.alloc.initWithTabBarSystemItem(UITabBarSystemItemFavorites, tag: 1)
-
-    self
-  end
 
   def viewDidLoad
     super
 
-    # self.view.backgroundColor = UIColor.whiteColor
-
-    # @label = UILabel.alloc.initWithFrame(CGRectZero)
-    # @label.text = "Taps"
-    # @label.sizeToFit
-    # @label.center = CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2)
-    # self.view.addSubview @label
-
-    # self.title = "Tap!!!"
-
-    # right_button = UIBarButtonItem.alloc.initWithTitle('Push', style: UIBarButtonItemStyleBordered, target: self, action: 'push')
-    # self.navigationItem.rightBarButtonItem = right_button
+    self.title = 'teacup and OAuth test'
   end
+
+  # layout do
+  #   subview(UIButton, :hi_button)
+  # end
+
+#   def initWithNibName(name, bundle: bundle)
+#     super
+# #    self.tabBarItem = UITabBarItem.alloc.initWithTabBarSystemItem(UITabBarSystemItemFavorites, tag: 1)
+
+#     self
+#   end
+
+  # def viewDidLoad
+  #   super
+
+  #   self.view.backgroundColor = UIColor.whiteColor
+
+  #   # @label = UILabel.alloc.initWithFrame(CGRectZero)
+  #   # @label.text = "Taps"
+  #   # @label.sizeToFit
+  #   # @label.center = CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2)
+  #   # self.view.addSubview @label
+
+  #   # self.title = "Tap!!!"
+
+  #   # right_button = UIBarButtonItem.alloc.initWithTitle('Push', style: UIBarButtonItemStyleBordered, target: self, action: 'push')
+  #   # self.navigationItem.rightBarButtonItem = right_button
+  # end
 
 #   def push
 #    # new_controller = TapController.alloc.initWithNibName(nil, bundle: nil)
@@ -72,4 +88,3 @@ class MainController < UIViewController
 #   end
 
 end
-
