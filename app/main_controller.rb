@@ -6,8 +6,9 @@ class MainController < UIViewController
     @result = subview(UILabel, :label, text:'foobar')
     @button = subview(UIButton.buttonWithType(UIButtonTypeSystem), :hi_button)
     @button.when(UIControlEventTouchUpInside) do
+      signInToCustomService
       @result.text = 'tapped'
-      App.alert('foobar')
+#      App.alert('foobar')
     end
   end  
 
@@ -18,73 +19,108 @@ class MainController < UIViewController
     self.title = 'teacup and OAuth test'
   end
 
-  # layout do
-  #   subview(UIButton, :hi_button)
-  # end
 
-#   def initWithNibName(name, bundle: bundle)
-#     super
-# #    self.tabBarItem = UITabBarItem.alloc.initWithTabBarSystemItem(UITabBarSystemItemFavorites, tag: 1)
 
-#     self
-#   end
+  # client_id - feedly (fixed)
+  # redirect_uri - https:#cloud.feedly.com/feedly.html (fixed)
+  # scope - https:#cloud.feedly.com/subscriptions (fixed)
+  # response_type - code (fixed)
+  # provider - google (fixed)
+  # migrate - false (fixed, now feedly not support migrate google reader)
 
-  # def viewDidLoad
-  #   super
+  def authForCustomService
 
-  #   self.view.backgroundColor = UIColor.whiteColor
+    client_id     = "sandbox"     
+    client_secret = "CM786L1D4P3M9VYUPOB8" 
 
-  #   # @label = UILabel.alloc.initWithFrame(CGRectZero)
-  #   # @label.text = "Taps"
-  #   # @label.sizeToFit
-  #   # @label.center = CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2)
-  #   # self.view.addSubview @label
+    token_url = NSURL.URLWithString("http:#sandbox.feedly.com/v3/auth/token")
 
-  #   # self.title = "Tap!!!"
+    redirect_uri = "http:#localhost"
 
-  #   # right_button = UIBarButtonItem.alloc.initWithTitle('Push', style: UIBarButtonItemStyleBordered, target: self, action: 'push')
-  #   # self.navigationItem.rightBarButtonItem = right_button
-  # end
+    auth = GTMOAuth2Authentication.authenticationWithServiceProvider(
+      "MyFeedlyApp",
+      tokenURL:token_url,
+      redirectURI:redirect_uri,
+      clientID:client_id,
+      clientSecret:client_secret )
 
-#   def push
-#    # new_controller = TapController.alloc.initWithNibName(nil, bundle: nil)
-#    # self.navigationController.pushViewController(new_controller, animated: true)
-# #   openURLWithOAuth
-#     GTMOAuth2ViewControllerTouch.alloc
-#   end
+    auth
+  end
 
-#   def openURLWithOAuth
-#     #UIApplication.sharedApplication.openURL('http://sandbox.feedly.com/v3/auth/auth?client_id=sandbox&client_secret=Z5ZSFRASVWCV3EFATRUY&response_type=code&redirect_uri=http://localhost&scope=https://cloud.feedly.com/subscriptions')
-#     App.open_url('http://sandbox.feedly.com/v3/auth/auth?client_id=sandbox&client_secret=Z5ZSFRASVWCV3EFATRUY&response_type=code&redirect_uri=foobar:/123/456/&scope=https://cloud.feedly.com/subscriptions')
-#   end
+  def signInToCustomService
+    # self.signOut
 
-#   def myCustomAuth
-#     myConsumerKey = "sandbox"
-#     myConsumerSecret = "Z5ZSFRASVWCV3EFATRUY"
+    auth = self.authForCustomService
 
-#     #  s = 'http://sandbox.feedly.com/v3/auth/auth?client_id=sandbox&client_secret=Z5ZSFRASVWCV3EFATRUY&response_type=code&redirect_uri=http://localhost&scope=https://cloud.feedly.com/subscriptions'
+    auth.scope = "https:#cloud.feedly.com/subscriptions"
 
-#     auth = GTMOAuthAuthentication.alloc.initWithSignatureMethod(kGTMOAuthSignatureMethodHMAC_SHA1, consumerKey:myConsumerKey, privateKey:myConsumerSecret)
-#     auth.serviceProvider = "Feedly Auth Service"
+    keychaina_item_name = 'foobar'
+    auth_url = NSURL.URLWithString("http:#sandbox.feedly.com/v3/auth/auth")
 
-#     auth
+    viewController = GTMOAuth2ViewControllerTouch.alloc.initWithAuthentication(
+      auth,
+      authorizationURL:auth_url,
+      keychainItemName:keychaina_item_name,
+      delegate:self,
+      finishedSelector:'viewController:finishedWithAuth:error:' )
 
-#   end
+    self.navigationController.pushViewController(viewController, animated:true)
+  end
 
-#   def signInToCustomService
+  def viewController(viewController, finishedWithAuth:auth, error:error)
+    if error != nil
+      pp error.userInfo
+      # Authentication failed (perhaps the user denied access, or closed the
+      # window before granting access)
+      # puts "Authentication error: #{error}"
+      # responseData = error.userInfo.objectForKey("data")
+      # if responseData.length > 0
+      #   str = NSString.alloc.initWithData(responseData, encoding:NSUTF8StringEncoding)
+      #   puts "#{str}"
+      # end
 
-#     # requestURL = NSURL.URLWithString("http://example.com/oauth/request_token")
-#     # accessURL = NSURL.URLWithString("http://example.com/oauth/access_token")
-#     # authorizeURL = NSURL.URLWithString("http://example.com/oauth/authorize")
-#     # scope = "http://example.com/scope"
+#      self.auth = nil
 
-#     # auth = self.myCustomAuth
+    else
+      pp auth
+      # Authentication succeeded
+      #
+      # At this point, we either use the authentication object to explicitly
+      # authorize requests, like
+      #
+      #  [auth authorizeRequest:myNSURLMutableRequest
+      #       completionHandler:^(NSError *error) {
+      #         if (error == nil) {
+      #           # request here has been authorized
+      #         }
+      #       }];
+      #
+      # or store the authentication object into a fetcher or a Google API service
+      # object like
+      #
+      #   [fetcher setAuthorizer:auth];
 
-#     # auth.setCallback("http://www.example.com/OAuthCallback")
+      # save the authentication object
+#      self.auth = auth;
+    end
+  end
 
-#     # viewController = GTMOAuthViewControllerTouch.alloc.initWithScope(scope, language:nil, requestTokenURL:requestURL, authorizeTokenURL:authorizeURL, accessTokenURL:accessURL, authentication:auth, appServiceName:"My App: Custom Service", delegate:self, finishedSelector:@selector(viewController:finishedWithAuth:error:))
+# - (void)signOut {
+#   if ([self.auth.serviceProvider isEqual:kGTMOAuth2ServiceProviderGoogle]) {
+#     # remove the token from Google's servers
+#     [GTMOAuth2ViewControllerTouch revokeTokenForGoogleAuthentication:self.auth];
+#   }
 
-#     # self.navigationController.pushViewController(viewController, animated:true)
-#   end
+#   # remove the stored Google authentication from the keychain, if any
+#   [GTMOAuth2ViewControllerTouch removeAuthFromKeychainForName:kKeychainItemName];
+
+#   # remove the stored DailyMotion authentication from the keychain, if any
+#   [GTMOAuth2ViewControllerTouch removeAuthFromKeychainForName:kDailyMotionAppServiceName];
+
+#   # Discard our retained authentication object.
+#   self.auth = nil;
+
+#   [self updateUI];
+# }
 
 end
